@@ -1,0 +1,31 @@
+{
+    "name": "integrabancos/integrabancos-sdk",
+    "description": "SDK PHP para integração com a API IntegraBancos.",
+    "type": "library",
+    "license": "private",
+    "authors": [
+        {
+            "name": "Roberto L. Machado",
+            "email": "linux.rlm@gmail.com"
+        },
+        {
+            "name": "Cleiton Perin",
+            "email": "cperin20@gmail.com"
+        },
+        {
+            "name": "Gabriel Arantd Felipe",
+            "email": "grantd.ctt@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-openssl": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "CloudDFe\\IntegraBancosSDK\\": "src/"
+        }
+    }
+}
