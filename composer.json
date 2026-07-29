@@ -1,8 +1,9 @@
 {
-    "name": "integrabancos/integrabancos-sdk",
+    "name": "integrabancos/sdk-php",
     "description": "SDK PHP para integração com a API IntegraBancos.",
     "type": "library",
-    "license": "private",
+    "homepage": "https://github.com/integrabancos/sdk-php",
+    "license": ["LGPL-3.0-or-later", "GPL-3.0-or-later", "MIT"],
     "authors": [
         {
             "name": "Roberto L. Machado",
@@ -25,7 +26,8 @@
     },
     "autoload": {
         "psr-4": {
-            "CloudDFe\\IntegraBancosSDK\\": "src/"
+            "IntegraBancos\\SdkPHP\\": "src/"
         }
-    }
+    },
+    "minimum-stability": "stable"
 }

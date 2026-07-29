@@ -1,5 +1,5 @@
 <?php
-namespace CloudDFe\IntegraBancosSDK;
+namespace IntegraBancos\SdkPHP;
 
 class Boleto extends Controller
 {

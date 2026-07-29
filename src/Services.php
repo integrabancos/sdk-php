@@ -1,6 +1,6 @@
 <?php
 
-namespace CloudDFe\IntegraBancosSDK;
+namespace IntegraBancos\SdkPHP;
 
 class Services
 {
