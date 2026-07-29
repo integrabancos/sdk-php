@@ -7,7 +7,7 @@ Este SDK visa simplificar a integração do seu sistema com a nossa API, oferenc
 ## Forma de instalação do SDK
 
 ```bash
-composer require <vendor/pacote>
+composer require integrabancos/sdk-php
 ```
 ## Regras de Autenticação
 Para autenticar o uso da API é necessario obter o **Token de Acesso** (Access Token) no qual vai permitir realizar operações desejadas.
@@ -24,10 +24,10 @@ Para autenticar o uso da API é necessario obter o **Token de Acesso** (Access T
 ```php
 <?php
 
-use CloudDFe\IntegraBancosSDK\Emitente;
-use CloudDFe\IntegraBancosSDK\Crypto;
+use IntegraBancos\SdkPHP\Auth;
+use IntegraBancos\SdkPHP\Crypto;
 
-$is_production = getenv("INTEGRABANCOS_IS_PRODUCTION");
+$is_production = false;
 
 // Se não for a primeira vez rodando o codigo e já possuir o refresh_token salvo
 $refresh_token = "SEU_REFRESH_TOKEN";
@@ -35,7 +35,7 @@ $refresh_token = "SEU_REFRESH_TOKEN";
 // Chave para criptografar o token e salva-lo no banco de dados
 // IMPORTANTE: A chave deve conter 32 caracteres ou 32 bytes
 // OBS: Logo abaixo é ensinado como pode ser gerado essa crypto_key 
-$crypto_key = base64_decode(getenv("CRYPTO_KEY"));
+$crypto_key = getenv("CRYPTO_KEY");
 
 /**
  * RECOMENDAÇÃO: obtenha os valores da função getenv()
@@ -51,15 +51,15 @@ $credentials = [
 
 try {
     // Requisição de geração do Access e Refresh Token
-    $response = Emitente::getAccessToken($credentials, $refresh_token, $is_production);
+    $response = Auth::getAccessToken($credentials, $refresh_token, $is_production);
 
     if (empty($response->access_token)) {
         // Retornar erro ao solicitar access_token
         throw new \Exception("Falha ao obter o access_token.");  
     }
 
-    $access_token = Crypto::encrypt($response->access_token, $crypto_key);
-    $refresh_token = Crypto::encrypt($response->refresh_token, $crypto_key);
+    $access_token = $response->access_token;
+    $refresh_token = $response->refresh_token;
     $expires_in = $response->expires_in;
 
     // Salvar os dados no Banco de dados
@@ -75,18 +75,6 @@ try {
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(["erro" => $e->getMessage()]);
 }
-```
-### Em caso de duvida sobre a geração da **crypto_key** segue o exemplo abaixo:
-```php
-<?php
-// Retorna dados binarios
-$crypto_key = random_bytes(32);
-
-// Para salvar em base64
-$secret_key_base64 = base64_encode($crypto_key);
-
-// Para visualizar e salvar no .env
-echo $secret_key_base64;
 ```
 
 ## Boas Práticas e Segurança da Informação
@@ -121,15 +109,30 @@ emitente é necessario cadastrar um emitente, que pode ser por via [Painel](link
 ```php
 <?php
 
-use CloudDFe\IntegraBancosSDK\Emitente;
+use IntegraBancos\SdkPHP\Emitente;
 
 $config = [
     "access_token" => "ACCESS_TOKEN",
-    "is_production" => getenv("INTEGRABANCOS_IS_PRODUCTION")
+    "is_production" => false
 ];
 
 // Dados do emitente
-$data = [];
+$data = [
+    "nome" => "EMPRESA TESTE",
+    "razao" => "EMPRESA TESTE",
+    "cnpj" => "44354598000192",
+    "cpf" => "12345678901",
+    "telefone" => "46998895532",
+    "email" => "empresa@teste.com",
+    "rua" => "TESTE",
+    "numero" => "1",
+    "complemento" => "NENHUM",
+    "bairro" => "TESTE",
+    "nome_municipio" => "CIDADE TESTE",
+    "codigo_municipio" => "5300108",
+    "uf" => "PR",
+    "cep" => "85000100"
+];
 
 try {
     $emitente = new Emitente($config);
@@ -141,7 +144,7 @@ try {
     $x_api_key = $response->x_api_key;
 
     // Visualização do retorno
-    echo json_encode($resp);
+    echo json_encode($response);
 } catch (\Exception $e) {
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(["erro" => $e->getMessage()]);

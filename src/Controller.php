@@ -43,7 +43,7 @@ class Controller
     /**
      * Solicita um token de acesso ao serviço OAuth.
      *
-     * @param array $credentials Credenciais do cliente (`client_id`, `client_secret`, `login`, `password`)
+     * @param array $credentials Credenciais do cliente (`client_id`, `client_secret`, `username`, `password`)
      * @param string|null $refresh_token Token de refresh opcional
      * @param bool $is_production Define ambiente de produção
      * @return object Resposta do serviço de autenticação
@@ -53,11 +53,11 @@ class Controller
     {
         $client_id = isset($credentials["client_id"]) ? $credentials["client_id"] : null;
         $client_secret = isset($credentials["client_secret"]) ? $credentials["client_secret"] : null;
-        $login = isset($credentials["login"]) ? $credentials["login"] : null;
+        $username = isset($credentials["username"]) ? $credentials["username"] : null;
         $password = isset($credentials["password"]) ? $credentials["password"] : null;
 
         $valid_credentials = !empty($client_id) && !empty($client_secret) &&
-            ((!empty($login) && !empty($password)) || !empty($refresh_token));
+            ((!empty($username) && !empty($password)) || !empty($refresh_token));
 
         if (!$valid_credentials) {
             $error = array(
@@ -79,7 +79,7 @@ class Controller
         if (!empty($refresh_token)) {
             $payload["refresh_token"] = $refresh_token;
         } else {
-            $payload["username"] = $login;
+            $payload["username"] = $username;
             $payload["password"] = $password;
         }
 
@@ -91,5 +91,4 @@ class Controller
 
         return $services->request("POST", "/oauth/token", $payload, $headers);
     }
-
 }

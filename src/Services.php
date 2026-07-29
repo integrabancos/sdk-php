@@ -10,8 +10,8 @@ class Services
     protected $base_uri = "";
     protected $debug = false;
 
-    const URI_PRODUCTION = "api.integrabancos.com.br/v";
-    const URI_SANDBOX = "hom-api.integrabancos.com.br/v";
+    const URI_PRODUCTION = "https://api.integrabancos.com.br/api/v";
+    const URI_SANDBOX = "https://hom-api.integrabancos.com.br/api/v";
 
     /**
      * Construtor do cliente de serviços HTTP.

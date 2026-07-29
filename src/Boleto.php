@@ -1,4 +1,5 @@
 <?php
+
 namespace IntegraBancos\SdkPHP;
 
 class Boleto extends Controller
@@ -21,7 +22,7 @@ class Boleto extends Controller
 
         if (!$x_api_key || !$secret_key) {
             $error = array(
-                "message" => "x-api-key e secret_key são obrigatórios!",
+                "message" => "x_api_key e secret_key são obrigatórios!",
                 "config" => $config
             );
             throw new \InvalidArgumentException(json_encode($error));
@@ -35,7 +36,7 @@ class Boleto extends Controller
     {
         if (empty($this->x_api_key) || empty($this->secret_key)) {
             $error = array(
-                "message" => "Os parametros [x-api-key e secret_key] são obrigatórias para esta operação.",
+                "message" => "Os parametros [x_api_key e secret_key] são obrigatórias para esta operação.",
                 "x_api_key" => $this->x_api_key,
                 "secret_key" => $this->secret_key
             );
@@ -59,11 +60,19 @@ class Boleto extends Controller
         if (empty($doc) && !empty($data["pagador"]["cpf"])) {
             $doc = $data["pagador"]["cpf"];
         }
-        $valor = isset($data["pagamento"]["valor"]) ? $data["pagamento"]["valor"] : 0;
+        $valor = (float)(isset($data["pagamento"]["valor"]) ? $data["pagamento"]["valor"] : 0);
         $identificacao = isset($data["identificacao"]) ? $data["identificacao"] : "";
         $vencimento = isset($data["pagamento"]["data_vencimento"]) ? $data["pagamento"]["data_vencimento"] : "";
 
-        $hash = hash("sha256", "{$doc}|{$valor}|{$identificacao}|{$vencimento}");
+        if (empty($valor)) {
+            $error = array(
+                "message" => "pagamento.valor deve ser informado e maior que zero!",
+                "config" => $data
+            );
+            throw new \InvalidArgumentException(json_encode($error));
+        }
+
+        $hash = hash("sha256", "{$identificacao}|{$doc}|{$valor}|{$vencimento}");
         $payload = json_encode($data);
 
         $encryptedPayload = Crypto::encrypt($payload, $this->secret_key);
@@ -85,6 +94,8 @@ class Boleto extends Controller
      */
     public function consultarBoleto(array $data)
     {
+        $this->has_keys();
+
         $identificacao = isset($data["identificacao"]) ? $data["identificacao"] : "";
         if (empty($identificacao)) {
             $error = array(
@@ -93,7 +104,9 @@ class Boleto extends Controller
             );
             throw new \InvalidArgumentException(json_encode($error));
         }
-        return $this->services->request("GET", "/charge/{$identificacao}", [], $this->getHeaders());
+        $headers = $this->getHeaders();
+        $headers[] = "x-api-key: {$this->x_api_key}";
+        return $this->services->request("GET", "/charge/{$identificacao}", [], $headers);
     }
 
     /**
@@ -145,6 +158,8 @@ class Boleto extends Controller
      */
     public function consultarEventoBoleto(array $data)
     {
+        $this->has_keys();
+
         $identificacao = isset($data["identificacao"]) ? $data["identificacao"] : "";
         $evento_id = isset($data["evento_id"]) ? $data["evento_id"] : "";
         if (empty($identificacao) || empty($evento_id)) {
@@ -154,7 +169,9 @@ class Boleto extends Controller
             );
             throw new \InvalidArgumentException(json_encode($error));
         }
-        return $this->services->request("GET", "/charge/{$identificacao}/event/{$evento_id}", [], $this->getHeaders());
+        $headers = $this->getHeaders();
+        $headers[] = "x-api-key: {$this->x_api_key}";
+        return $this->services->request("GET", "/charge/{$identificacao}/{$evento_id}", [], $headers);
     }
 
 }
